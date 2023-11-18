@@ -1,4 +1,4 @@
-Advent Of Code 2022
-===================
+Advent Of Code
+==============
 
-This is just a practice for 2023
+https://adventofcode.com
