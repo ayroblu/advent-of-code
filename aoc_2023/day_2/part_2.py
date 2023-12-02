@@ -1,7 +1,7 @@
-from utils.file import read_file
 import re
 from functools import reduce
 
+from utils.file import read_file
 from utils.types import not_none
 
 contents = read_file(__file__, "input")
