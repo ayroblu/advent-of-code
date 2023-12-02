@@ -1,7 +1,6 @@
 import re
 from utils.file import read_file
-from typing import TypeVar, Optional
-
+from utils.types import not_none
 
 text_digits = {
     "one": "1",
@@ -14,15 +13,6 @@ text_digits = {
     "eight": "8",
     "nine": "9",
 }
-
-T = TypeVar("T")
-
-
-def not_none(a: Optional[T]) -> T:
-    if a is None:
-        raise Exception("a is None")
-    return a
-
 
 contents = read_file(__file__, "input")
 lines = contents.split("\n")
