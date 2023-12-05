@@ -6,7 +6,7 @@ authors = ["Ben Lu <ayroblu@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 black = "^23.11.0"
 isort = "^5.12.0"
 mypy = "^1.7.0"

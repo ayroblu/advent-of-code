@@ -1,9 +1,6 @@
-from typing import TypeVar, Optional
+from typing import Optional
 
-T = TypeVar("T")
-
-
-def not_none(a: Optional[T]) -> T:
+def not_none[T](a: Optional[T]) -> T:
     if a is None:
         raise Exception("a is None")
     return a
