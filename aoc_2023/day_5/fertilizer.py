@@ -1,6 +1,6 @@
 import re
-
 from dataclasses import dataclass
+
 from utils.file import read_file
 from utils.types import not_none
 
