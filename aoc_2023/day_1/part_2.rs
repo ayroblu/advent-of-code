@@ -15,11 +15,7 @@ fn main() {
         ("eight", "8"),
         ("nine", "9"),
     ]);
-    let keys = text_digits
-        .keys()
-        .map(|s| &**s)
-        .collect::<Vec<_>>()
-        .join("|");
+    let keys = text_digits.keys().map(|s| *s).collect::<Vec<_>>().join("|");
     let pat = r"(\d|".to_owned() + &keys + r")";
     let pat_end = r".*".to_owned() + &pat + r".*?$";
     let re = Regex::new(&pat).unwrap();
