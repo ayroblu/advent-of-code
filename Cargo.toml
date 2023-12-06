@@ -15,3 +15,11 @@ path = "aoc_2023/day_1/trebuchet.rs"
 [[bin]]
 name = "day_1p2"
 path = "aoc_2023/day_1/part_2.rs"
+
+[[bin]]
+name = "day_6"
+path = "aoc_2023/day_6/wait_for_it.rs"
+
+[[bin]]
+name = "day_6p2"
+path = "aoc_2023/day_6/part_2.rs"
