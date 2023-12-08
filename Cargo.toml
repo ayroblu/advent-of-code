@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lazy_static = "1.4.0"
 regex = "1.10.2"
 
 [[bin]]
@@ -23,3 +24,11 @@ path = "aoc_2023/day_6/wait_for_it.rs"
 [[bin]]
 name = "day_6p2"
 path = "aoc_2023/day_6/part_2.rs"
+
+[[bin]]
+name = "day_7"
+path = "aoc_2023/day_7/camel.rs"
+
+[[bin]]
+name = "day_7p2"
+path = "aoc_2023/day_7/part_2.rs"
