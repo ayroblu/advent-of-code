@@ -20,15 +20,15 @@ fn main() {
 }
 
 fn predict(input: Vec<i64>) -> i64 {
-    let mut result = Vec::new();
-    input.iter().reduce(|prev, next| {
-        result.push(next - prev);
-        return next;
-    });
-    let last = input.last().unwrap();
-    let inc: i64 = match !result.iter().all(|v| *v == 0) {
-        true => predict(result),
-        false => 0,
-    };
-    return last + inc;
+    let mut current = input;
+    let mut sum = 0;
+    while !current.iter().all(|v| *v == 0) {
+        sum += current.last().unwrap();
+        current = current[1..]
+            .iter()
+            .enumerate()
+            .map(|(i, next)| next - current[i])
+            .collect();
+    }
+    return sum;
 }
