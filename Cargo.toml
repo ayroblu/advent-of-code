@@ -32,3 +32,19 @@ path = "aoc_2023/day_7/camel.rs"
 [[bin]]
 name = "day_7p2"
 path = "aoc_2023/day_7/part_2.rs"
+
+[[bin]]
+name = "day_8"
+path = "aoc_2023/day_8/haunted_wasteland.rs"
+
+[[bin]]
+name = "day_8p2"
+path = "aoc_2023/day_8/part_2.rs"
+
+[[bin]]
+name = "day_9"
+path = "aoc_2023/day_9/mirage.rs"
+
+[[bin]]
+name = "day_9p2"
+path = "aoc_2023/day_9/part_2.rs"
