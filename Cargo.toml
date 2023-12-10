@@ -48,3 +48,11 @@ path = "aoc_2023/day_9/mirage.rs"
 [[bin]]
 name = "day_9p2"
 path = "aoc_2023/day_9/part_2.rs"
+
+[[bin]]
+name = "day_10"
+path = "aoc_2023/day_10/pipe_maze.rs"
+
+[[bin]]
+name = "day_10p2"
+path = "aoc_2023/day_10/part_2.rs"
