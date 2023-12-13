@@ -8,7 +8,7 @@ horizontal_total = 0
 vertical_total = 0
 
 
-def equal_with_err(l1: list[str], l2: list[str], err: int) -> int:
+def equal_with_err(l1: str, l2: str, err: int) -> int:
     for c1, c2 in zip(l1, l2):
         if c1 != c2:
             err += 1
@@ -17,41 +17,30 @@ def equal_with_err(l1: list[str], l2: list[str], err: int) -> int:
     return err
 
 
-def get_line(grid: list[list[str]]) -> Union[int, None]:
-    for i in range(len(grid))[:0:-1]:
-        if i % 2 == 0:
-            continue
+def get_line(grid: list[str]) -> Union[int, None]:
+    for i in range(1, len(grid)):
+        slice1 = grid[:i]
+        slice2 = grid[i:]
         err = 0
-        for i2 in range(0, len(grid)):
-            if i2 > i - i2:
-                break
-            err = equal_with_err(grid[i2], grid[i - i2], err)
+        for l1, l2 in zip(slice1, reversed(slice2)):
+            err = equal_with_err(l1, l2, err)
             if err > 1:
                 break
         if err == 1:
-            return (i + 1) // 2
+            return i
 
 
 for i, problem in enumerate(problems):
-    grid = [list(line) for line in problem.splitlines()]
+    grid = [line for line in problem.splitlines()]
     line = get_line(grid)
     if line is not None:
         horizontal_total += line
         continue
 
-    line = get_line(list(reversed(grid)))
-    if line is not None:
-        horizontal_total += len(grid) - line
-        continue
-
-    line = get_line(list(map(list, zip(*grid))))
+    grid_t = ["".join(line) for line in zip(*grid)]
+    line = get_line(grid_t)
     if line is not None:
         vertical_total += line
-        continue
-
-    line = get_line(list(reversed(list(map(list, zip(*grid))))))
-    if line is not None:
-        vertical_total += len(grid[0]) - line
         continue
 
     raise Exception("no")
