@@ -1,6 +1,10 @@
 import os
 
 
+def read_input(current_file_path: str) -> str:
+    return read_file(current_file_path, "input")
+
+
 def read_file(current_file_path: str, relative_file_name: str) -> str:
     """current_file_path should be __file__"""
 
