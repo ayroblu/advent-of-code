@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from utils.file import read_input
 
 contents = read_input(__file__)
@@ -14,27 +16,21 @@ def run_hash(text: str):
     return current
 
 
-sum = 0
-boxes: list[list[tuple[str, str]]] = [[] for _ in range(256)]
+boxes: list[OrderedDict[str, str]] = [OrderedDict() for _ in range(256)]
 for item in contents.split(","):
     if "=" in item:
         op, value = item.split("=")
         idx = run_hash(op)
-        ops = [key for key, _ in boxes[idx]]
-        if op not in ops:
-            boxes[idx].append((op, value))
-        else:
-            index = ops.index(op)
-            boxes[idx][index] = (op, value)
+        boxes[idx][op] = value
     else:
         op, _ = item.split("-")
         idx = run_hash(op)
-        ops = [key for key, _ in boxes[idx]]
-        if op in ops:
-            index = ops.index(op)
-            del boxes[idx][index]
+        if op in boxes[idx]:
+            boxes[idx].pop(op)
+
+sum = 0
 for i, box in enumerate(boxes):
-    for i2, (_, item) in enumerate(box):
+    for i2, (_, item) in enumerate(box.items()):
         sum += (i + 1) * (i2 + 1) * int(item)
 
 print(sum)
