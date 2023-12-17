@@ -1,4 +1,4 @@
-from bisect import insort
+from heapq import heappop, heappush
 
 from utils.file import read_input
 
@@ -19,12 +19,12 @@ contents = read_input(__file__)
 
 grid = contents.splitlines()
 
-type CoordWithSum = tuple[tuple[int, int], tuple[int, int], int, int]
+type CoordWithSum = tuple[int, tuple[int, int], tuple[int, int], int]
 seen: dict[tuple[tuple[int, int], tuple[int, int]], list[tuple[int, int]]] = {}
 
-nodes: list[CoordWithSum] = [((0, 0), (0, 1), 0, 0), ((0, 0), (1, 0), 0, 0)]
+nodes: list[CoordWithSum] = [(0, (0, 0), (0, 1), 0), (0, (0, 0), (1, 0), 0)]
 while len(nodes):
-    (r, c), (rd, cd), cost, same_dir = nodes.pop()
+    cost, (r, c), (rd, cd), same_dir = heappop(nodes)
     if (r, c) == (len(grid) - 1, len(grid[0]) - 1):
         print("cost", cost)
         break
@@ -71,8 +71,7 @@ while len(nodes):
         if done:
             continue
 
-        insort(
+        heappush(
             nodes,
-            ((nr, nc), (nrd, ncd), new_cost, dir),
-            key=(lambda v: -v[2]),
+            (new_cost, (nr, nc), (nrd, ncd), dir),
         )
