@@ -20,34 +20,18 @@ type Point = tuple[int, int]
 
 r, c = (0, 0)
 points: dict[int, list[tuple[int, int]]] = {}
+dirs = {"U": (1, 0), "D": (-1, 0), "L": (0, -1), "R": (0, 1)}
 
 for idx, line in enumerate(contents.splitlines()):
     # dir, num_str, col = line.split()
     # num = int(num_str)
 
     _, _, col = line.split()
-    hex_dist, dir = (col[2:-2], col[-2:-1])
+    hex_dist, dir_key = (col[2:-2], col[-2:-1])
     num = int(hex_dist, 16)
+    rd, cd = dirs["RDLU"[int(dir_key)]]
 
-    if dir == "3":
-        dir = "U"
-    elif dir == "1":
-        dir = "D"
-    elif dir == "2":
-        dir = "L"
-    elif dir == "0":
-        dir = "R"
-
-    rd, cd = (0, 0)
-    if dir == "U":
-        rd = 1
-    elif dir == "D":
-        rd = -1
-    elif dir == "L":
-        cd = -1
-    elif dir == "R":
-        cd = 1
-    if dir == "U" or dir == "D":
+    if rd != 0:
         for i in range(1, num + 1):
             nr, nc = (r + (rd * i), c + (cd * i))
             if nr in points:
