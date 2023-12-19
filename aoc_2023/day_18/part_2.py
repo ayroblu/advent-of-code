@@ -19,78 +19,39 @@ contents = read_input(__file__)
 type Point = tuple[int, int]
 
 r, c = (0, 0)
-points: dict[int, list[tuple[int, int]]] = {}
+points: list[tuple[int, int]] = []
 dirs = {"U": (1, 0), "D": (-1, 0), "L": (0, -1), "R": (0, 1)}
 
+circ = 0
 for idx, line in enumerate(contents.splitlines()):
     # dir, num_str, col = line.split()
     # num = int(num_str)
+    # rd, cd = dirs[dir]
 
     _, _, col = line.split()
     hex_dist, dir_key = (col[2:-2], col[-2:-1])
     num = int(hex_dist, 16)
     rd, cd = dirs["RDLU"[int(dir_key)]]
 
-    if rd != 0:
-        for i in range(1, num + 1):
-            nr, nc = (r + (rd * i), c + (cd * i))
-            if nr in points:
-                points[nr].append((nc, nc))
-            else:
-                points[nr] = [(nc, nc)]
-    else:
-        nc = c + cd * num
-        bound = (min(c, nc), max(c, nc))
-        if r in points:
-            points[r].append(bound)
-        else:
-            points[r] = [bound]
     r += rd * num
     c += cd * num
-
-print("start")
-sum = 0
-
-
-def around(r: int, part: tuple[int, int]) -> bool:
-    c1, c2 = part
-    if r - 1 in points and r + 1 in points:
-        list_below = [a for p in points[r - 1] for a in list(p)]
-        list_above = [a for p in points[r + 1] for a in list(p)]
-        if (
-            c1 in list_below
-            and c2 in list_above
-            or c1 in list_above
-            and c2 in list_below
-        ):
-            return True
-    return False
+    points.append((r, c))
+    circ += num
 
 
-def group_sorted_intervals(l: list[tuple[int, int]]) -> list[tuple[int, int]]:
-    result: list[tuple[int, int]] = []
-    for left, right in l:
-        if len(result):
-            last_left, last_right = result[-1]
-            if left <= last_right:
-                result[-1] = (last_left, max(last_right, right))
-                continue
-        result.append((left, right))
-    return result
+# https://stackoverflow.com/questions/451426/how-do-i-calculate-the-area-of-a-2d-polygon
+# Basically cross product and divide by 2, the rotation clockwise / counter will cancel out the empty spaces
+area = 0
+for i in range(1, len(points)):
+    (pr, pc), (r, c) = points[i - 1], points[i]
+    area += r * pc - c * pr
+area = abs(area) // 2
+# half of a square + 4 corners, which must rotate to cover 360 aka 1 box
+# ###
+# ###
+# ###
+# expand by half of circumfrance + 1 extra. Left and right turns cancel out, eventually always 360 degrees for a closed shape
+area = int(area + circ / 2 + 1)
 
 
-for r, c in points.items():
-    points_list = c
-    points_list.sort()
-    points_list = group_sorted_intervals(points_list)
-    sum += points_list[0][1] - points_list[0][0] + 1
-    is_fillable = around(r, points_list[0])
-    for i in range(1, len(points_list)):
-        sum += points_list[i][1] - points_list[i][0] + 1
-        if is_fillable:
-            sum += points_list[i][0] - points_list[i - 1][1] - 1
-        is_around_current = around(r, points_list[i])
-        if is_around_current:
-            is_fillable = not is_fillable
-
-print(sum)
+print(area)
