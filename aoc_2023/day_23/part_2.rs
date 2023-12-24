@@ -43,8 +43,10 @@ fn main() {
 
     let mut graph: Graph = HashMap::new();
     let mut seen: HashSet<(usize, usize)> = HashSet::new();
+    println!("traversing for graph...");
     traverse_graph(start, &grid, &mut graph, &mut seen, end);
     let mut seen: HashSet<(usize, usize)> = HashSet::new();
+    println!("running longest path algo...");
     let result = longest_recur(start, &mut graph, &mut seen, end);
     println!("Result: {}", result)
 }
@@ -149,7 +151,7 @@ fn longest_recur(
             continue;
         }
         let l = longest_recur(*next_point, graph, seen, end_point);
-        let total_dist = l.checked_add_unsigned(*next_dist).unwrap();
+        let total_dist = l + *next_dist as isize;
         max_dist = max(total_dist, max_dist);
     }
     seen.remove(&point);
