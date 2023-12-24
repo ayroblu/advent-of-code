@@ -141,6 +141,7 @@ fn longest_recur(
     seen: &mut HashSet<(usize, usize)>,
     end_point: (usize, usize),
 ) -> isize {
+    // 55s run time
     if point == end_point {
         return 0;
     }
