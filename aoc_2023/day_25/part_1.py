@@ -29,7 +29,7 @@ for line in contents.splitlines():
 start_node = next(iter(graph))
 
 
-def cut(start_node: str):
+def cut(start_node: str) -> int:
     seen: set[str] = {start_node}
     possible: dict[str, int] = defaultdict(lambda: 0, {k: 1 for k in graph[start_node]})
     min_cut = None
@@ -40,7 +40,7 @@ def cut(start_node: str):
         min_cut = min(total, min_cut)
         if total == 3:
             print(len(seen), len(seen) * (len(graph) - len(seen)))
-            return
+            return min_cut
 
         next_node, _ = max([(k, v) for k, v in possible.items()], key=lambda x: x[1])
 
@@ -50,6 +50,9 @@ def cut(start_node: str):
             if p in seen:
                 continue
             possible[p] += 1
+    if min_cut is None:
+        return 0
+    return min_cut
 
 
 # Add all nodes in a stack, pick most "connected" each time
