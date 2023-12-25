@@ -1,4 +1,5 @@
 from utils.file import read_input
+from collections import defaultdict
 
 contents = read_input(__file__)
 
@@ -16,17 +17,13 @@ contents = read_input(__file__)
 # rzs: qnr cmg lsr rsh
 # frs: qnr lhk lsr"""
 
-graph: dict[str, list[str]] = {}
+graph: dict[str, list[str]] = defaultdict(lambda: [])
 
 for line in contents.splitlines():
     name, connected = line.split(": ")
     con_list = connected.split()
-    if name not in graph:
-        graph[name] = []
     graph[name].extend(con_list)
     for item in con_list:
-        if item not in graph:
-            graph[item] = []
         graph[item].append(name)
 
 start_node = next(iter(graph))
@@ -35,19 +32,16 @@ start_node = next(iter(graph))
 def cut(start_node: str):
     seen: set[str] = {start_node}
     stack: list[str] = []
+    possible: dict[str, int] = defaultdict(lambda: 0, {k: 1 for k in graph[start_node]})
     while len(seen) < len(graph):
-        possible: dict[str, int] = {}
-        for node in seen:
-            for n in graph[node]:
-                if n in seen:
-                    continue
-                if n not in possible:
-                    possible[n] = 0
-                possible[n] += 1
-        pos = sorted([(k, v) for k, v in possible.items()], key=lambda x: -x[1])
-        next_node = pos[0][0]
+        next_node, _ = max([(k, v) for k, v in possible.items()], key=lambda x: x[1])
         seen.add(next_node)
         stack.append(next_node)
+        possible.pop(next_node)
+        for p in graph[next_node]:
+            if p in seen:
+                continue
+            possible[p] += 1
 
     other: set[str] = set()
     while len(stack):
