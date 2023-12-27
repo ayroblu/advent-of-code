@@ -6,29 +6,29 @@ mod file;
 
 fn main() {
     let contents = file::read_file(file_abs!());
-//     let contents = "#.#####################
-// #.......#########...###
-// #######.#########.#.###
-// ###.....#.>.>.###.#.###
-// ###v#####.#v#.###.#.###
-// ###.>...#.#.#.....#...#
-// ###v###.#.#.#########.#
-// ###...#.#.#.......#...#
-// #####.#.#.#######.#.###
-// #.....#.#.#.......#...#
-// #.#####.#.#.#########v#
-// #.#...#...#...###...>.#
-// #.#.#v#######v###.###v#
-// #...#.>.#...>.>.#.###.#
-// #####v#.#.###v#.#.###.#
-// #.....#...#...#.#.#...#
-// #.#########.###.#.#.###
-// #...###...#...#...#.###
-// ###.###.#.###v#####v###
-// #...#...#.#.>.>.#.>.###
-// #.###.###.#.###.#.#v###
-// #.....###...###...#...#
-// #####################.#";
+    //     let contents = "#.#####################
+    // #.......#########...###
+    // #######.#########.#.###
+    // ###.....#.>.>.###.#.###
+    // ###v#####.#v#.###.#.###
+    // ###.>...#.#.#.....#...#
+    // ###v###.#.#.#########.#
+    // ###...#.#.#.......#...#
+    // #####.#.#.#######.#.###
+    // #.....#.#.#.......#...#
+    // #.#####.#.#.#########v#
+    // #.#...#...#...###...>.#
+    // #.#.#v#######v###.###v#
+    // #...#.>.#...>.>.#.###.#
+    // #####v#.#.###v#.#.###.#
+    // #.....#...#...#.#.#...#
+    // #.#########.###.#.#.###
+    // #...###...#...#...#.###
+    // ###.###.#.###v#####v###
+    // #...#...#.#.>.>.#.>.###
+    // #.###.###.#.###.#.#v###
+    // #.....###...###...#...#
+    // #####################.#";
 
     let grid = contents
         .split("\n")
@@ -44,15 +44,23 @@ fn main() {
     let mut seen: HashSet<(usize, usize)> = HashSet::new();
     println!("traversing for graph...");
     traverse_graph(start, &grid, &mut graph, &mut seen);
+
+    println!("running longest path algo...");
+    if false {
+        // takes around 6s
+        let mut seen: HashSet<(usize, usize)> = HashSet::new();
+        let result = longest_recur(start, &graph, &mut seen, end, 0);
+        println!("Result: {}", result);
+    }
+
+    println!("using no hashing...");
     let (mut vec_graph, tuple_to_idx) = hash_to_vec_graph(&graph);
     let start_idx = tuple_to_idx[&start];
     let end_idx = tuple_to_idx[&end];
 
     let mut seen_vec = vec![false; vec_graph.len()];
-    println!("running longest path algo...");
     // let mut counter = 0;
-    // println!("graph: {:?}, end: {:?}", vec_graph, end_idx);
-    let result = longest_recur(
+    let result = longest_recur_vec(
         start_idx,
         &mut vec_graph,
         &mut seen_vec,
@@ -165,6 +173,38 @@ fn get_points((r, c): (usize, usize), grid: &Vec<Vec<char>>) -> Vec<(usize, usiz
 }
 
 fn longest_recur(
+    point: (usize, usize),
+    graph: &Graph,
+    seen: &mut HashSet<(usize, usize)>,
+    end_point: (usize, usize),
+    // counter: &mut usize,
+    dist: usize,
+) -> usize {
+    // *counter += 1;
+    if point == end_point {
+        return dist;
+    }
+    let mut max = 0;
+    seen.insert(point);
+    for &(next_point, next_dist) in &graph[&point] {
+        if seen.contains(&next_point) {
+            continue;
+        }
+        let l = longest_recur(
+            next_point,
+            graph,
+            seen,
+            end_point,
+            // counter,
+            dist + next_dist,
+        );
+        max = max.max(l);
+    }
+    seen.remove(&point);
+    max
+}
+
+fn longest_recur_vec(
     point: usize,
     graph: &VecGraph,
     seen: &mut Vec<bool>,
@@ -182,7 +222,7 @@ fn longest_recur(
         if seen[next_point] {
             continue;
         }
-        let l = longest_recur(
+        let l = longest_recur_vec(
             next_point,
             graph,
             seen,
