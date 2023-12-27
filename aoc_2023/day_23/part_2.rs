@@ -1,4 +1,3 @@
-use std::cmp::max;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
@@ -7,29 +6,29 @@ mod file;
 
 fn main() {
     let contents = file::read_file(file_abs!());
-    // let contents = "#.#####################
-    // #.......#########...###
-    // #######.#########.#.###
-    // ###.....#.>.>.###.#.###
-    // ###v#####.#v#.###.#.###
-    // ###.>...#.#.#.....#...#
-    // ###v###.#.#.#########.#
-    // ###...#.#.#.......#...#
-    // #####.#.#.#######.#.###
-    // #.....#.#.#.......#...#
-    // #.#####.#.#.#########v#
-    // #.#...#...#...###...>.#
-    // #.#.#v#######v###.###v#
-    // #...#.>.#...>.>.#.###.#
-    // #####v#.#.###v#.#.###.#
-    // #.....#...#...#.#.#...#
-    // #.#########.###.#.#.###
-    // #...###...#...#...#.###
-    // ###.###.#.###v#####v###
-    // #...#...#.#.>.>.#.>.###
-    // #.###.###.#.###.#.#v###
-    // #.....###...###...#...#
-    // #####################.#";
+//     let contents = "#.#####################
+// #.......#########...###
+// #######.#########.#.###
+// ###.....#.>.>.###.#.###
+// ###v#####.#v#.###.#.###
+// ###.>...#.#.#.....#...#
+// ###v###.#.#.#########.#
+// ###...#.#.#.......#...#
+// #####.#.#.#######.#.###
+// #.....#.#.#.......#...#
+// #.#####.#.#.#########v#
+// #.#...#...#...###...>.#
+// #.#.#v#######v###.###v#
+// #...#.>.#...>.>.#.###.#
+// #####v#.#.###v#.#.###.#
+// #.....#...#...#.#.#...#
+// #.#########.###.#.#.###
+// #...###...#...#...#.###
+// ###.###.#.###v#####v###
+// #...#...#.#.>.>.#.>.###
+// #.###.###.#.###.#.#v###
+// #.....###...###...#...#
+// #####################.#";
 
     let grid = contents
         .split("\n")
@@ -44,11 +43,47 @@ fn main() {
     let mut graph: Graph = HashMap::new();
     let mut seen: HashSet<(usize, usize)> = HashSet::new();
     println!("traversing for graph...");
-    traverse_graph(start, &grid, &mut graph, &mut seen, end);
-    let mut seen: HashSet<(usize, usize)> = HashSet::new();
+    traverse_graph(start, &grid, &mut graph, &mut seen);
+    let (mut vec_graph, tuple_to_idx) = hash_to_vec_graph(&graph);
+    let start_idx = tuple_to_idx[&start];
+    let end_idx = tuple_to_idx[&end];
+
+    let mut seen_vec = vec![false; vec_graph.len()];
     println!("running longest path algo...");
-    let result = longest_recur(start, &mut graph, &mut seen, end);
+    // let mut counter = 0;
+    // println!("graph: {:?}, end: {:?}", vec_graph, end_idx);
+    let result = longest_recur(
+        start_idx,
+        &mut vec_graph,
+        &mut seen_vec,
+        end_idx,
+        // &mut counter,
+        0,
+    );
+    // println!("counter: {:?}", counter);
     println!("Result: {}", result)
+}
+
+type VecGraph = Vec<Vec<(usize, usize)>>;
+fn hash_to_vec_graph(graph: &Graph) -> (VecGraph, HashMap<(usize, usize), usize>) {
+    let mut vec_graph: VecGraph = Vec::new();
+    let mut tuple_to_idx: HashMap<(usize, usize), usize> = HashMap::new();
+    let mut get_with_default = |x: &(usize, usize), v: &mut Vec<Vec<(usize, usize)>>| -> usize {
+        tuple_to_idx.get(x).copied().unwrap_or_else(|| {
+            let result = v.len();
+            tuple_to_idx.insert(*x, result);
+            v.push(Vec::new());
+            return result;
+        })
+    };
+    for (k, v) in graph {
+        let k_idx = get_with_default(k, &mut vec_graph);
+        for (item, dist) in v {
+            let edge_idx = get_with_default(item, &mut vec_graph);
+            vec_graph[k_idx].push((edge_idx, *dist));
+        }
+    }
+    return (vec_graph, tuple_to_idx);
 }
 
 type Graph = HashMap<(usize, usize), Vec<((usize, usize), usize)>>;
@@ -57,64 +92,58 @@ fn traverse_graph(
     grid: &Vec<Vec<char>>,
     graph: &mut Graph,
     seen: &mut HashSet<(usize, usize)>,
-    end_point: (usize, usize),
 ) {
+    // get all possible routes, filter by not previous
+    // if routes.count > 1, done
+    // go to next
     let points = get_points(start_point, grid);
     for point in points {
-        // technically should have this
-        // if is_node(point, grid) {
-        //     graph
-        //         .entry(point)
-        //         .or_insert(Vec::new())
-        //         .push((start_point, 1));
-        //     graph
-        //         .entry(start_point)
-        //         .or_insert(Vec::new())
-        //         .push((point, 1));
-        //     if !seen.contains(&point) {
-        //         traverse_graph(point, grid, graph, seen, end_point);
-        //     }
-        //     continue;
-        // }
         if seen.contains(&point) {
             continue;
         }
         seen.insert(point);
-        let mut last_point = start_point;
-        let mut current_point = point;
-        let mut counter = 0;
-        loop {
-            counter += 1;
-            let new_points = get_points(current_point, grid);
-            if new_points.len() > 2 || current_point == end_point {
-                graph
-                    .entry(current_point)
-                    .or_insert(Vec::new())
-                    .push((start_point, counter));
-                graph
-                    .entry(start_point)
-                    .or_insert(Vec::new())
-                    .push((current_point, counter));
-                if new_points.iter().filter(|&p| !seen.contains(p)).count() > 0 {
-                    traverse_graph(current_point, grid, graph, seen, end_point);
-                }
-                break;
-            }
-            assert_eq!(new_points.len(), 2);
-            let temp = current_point;
-            current_point = *new_points
-                .iter()
-                .filter(|&p| last_point != *p)
-                .next()
-                .unwrap();
-            last_point = temp;
-            seen.insert(current_point);
-        }
+        traverse_path(start_point, point, grid, graph, seen);
     }
 }
-// fn is_node((r, c): (usize, usize), grid: &Vec<Vec<char>>) -> bool {
-//     return get_points((r, c), grid).len() > 2;
-// }
+fn traverse_path(
+    start_point: (usize, usize),
+    current_point: (usize, usize),
+    grid: &Vec<Vec<char>>,
+    graph: &mut Graph,
+    seen: &mut HashSet<(usize, usize)>,
+) {
+    let mut prev_point = start_point;
+    let mut last_point = current_point;
+    let mut dist = 0;
+    loop {
+        dist += 1;
+        let points = get_points(last_point, grid)
+            .iter()
+            .filter(|&p| *p != prev_point)
+            .copied()
+            .collect::<Vec<_>>();
+        if points.len() != 1 {
+            graph
+                .entry(last_point)
+                .or_insert(Vec::new())
+                .push((start_point, dist));
+            graph
+                .entry(start_point)
+                .or_insert(Vec::new())
+                .push((last_point, dist));
+            if !seen.contains(&last_point) {
+                seen.insert(last_point);
+                if points.len() > 1 {
+                    traverse_graph(last_point, grid, graph, seen);
+                }
+            }
+            return;
+        }
+        prev_point = last_point;
+        seen.insert(last_point);
+        last_point = *points.first().unwrap();
+    }
+}
 fn get_points((r, c): (usize, usize), grid: &Vec<Vec<char>>) -> Vec<(usize, usize)> {
     let dirs: [(isize, isize); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
     return dirs
@@ -136,25 +165,33 @@ fn get_points((r, c): (usize, usize), grid: &Vec<Vec<char>>) -> Vec<(usize, usiz
 }
 
 fn longest_recur(
-    point: (usize, usize),
-    graph: &Graph,
-    seen: &mut HashSet<(usize, usize)>,
-    end_point: (usize, usize),
-) -> isize {
-    // 55s run time
+    point: usize,
+    graph: &VecGraph,
+    seen: &mut Vec<bool>,
+    end_point: usize,
+    // counter: &mut usize,
+    dist: usize,
+) -> usize {
+    // *counter += 1;
     if point == end_point {
-        return 0;
+        return dist;
     }
-    let mut max_dist = -1000000000;
-    seen.insert(point);
-    for (next_point, next_dist) in &graph[&point] {
-        if seen.contains(next_point) {
+    let mut max = 0;
+    seen[point] = true;
+    for &(next_point, next_dist) in &graph[point] {
+        if seen[next_point] {
             continue;
         }
-        let l = longest_recur(*next_point, graph, seen, end_point);
-        let total_dist = l + *next_dist as isize;
-        max_dist = max(total_dist, max_dist);
+        let l = longest_recur(
+            next_point,
+            graph,
+            seen,
+            end_point,
+            // counter,
+            dist + next_dist,
+        );
+        max = max.max(l);
     }
-    seen.remove(&point);
-    return max_dist;
+    seen[point] = false;
+    max
 }

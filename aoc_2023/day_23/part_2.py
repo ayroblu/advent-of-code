@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from utils.file import read_input
 
 contents = read_input(__file__)
@@ -41,78 +43,52 @@ dirs = [(0, 1), (1, 0), (-1, 0), (0, -1)]
 
 type Point = tuple[int, int]
 
-nodes: set[Point] = {(rs, cs)}
-edges: dict[Point, list[tuple[Point, int]]] = {}
+edges: dict[Point, list[tuple[Point, int]]] = defaultdict(list)
 
 max_dist = 0
 seen: set[Point] = {(rs, cs)}
 
 
-def get_valid_dirs(point: Point, seen_set: set[Point] = seen) -> list[Point]:
+def get_points(point: Point) -> list[Point]:
     r, c = point
-    valid_dirs: list[Point] = []
-    for rd, cd in dirs:
-        nr, nc = next_point = (r + rd, c + cd)
-        if not (0 <= nr < len(grid) and 0 <= nc < len(grid[0])):
-            continue
-        if grid[nr][nc] == "#":
-            continue
-        if next_point in seen_set:
-            continue
-        valid_dirs.append((rd, cd))
-    return valid_dirs
-
-
-def get_num_dirs(point: Point) -> int:
-    r, c = point
-    all_dirs: list[Point] = []
+    valid_points: list[Point] = []
     for rd, cd in dirs:
         nr, nc = (r + rd, c + cd)
         if not (0 <= nr < len(grid) and 0 <= nc < len(grid[0])):
             continue
         if grid[nr][nc] == "#":
             continue
-        all_dirs.append((rd, cd))
-    return len(all_dirs)
+        valid_points.append((nr, nc))
+    return valid_points
 
 
-def get_valid_points(point: Point, seen_set: set[Point] = seen) -> list[Point]:
-    r, c = point
-    valid_dirs = get_valid_dirs(point, seen_set)
-    return [(r + rd, c + cd) for (rd, cd) in valid_dirs]
-
-
-def traverse(point: Point):
-    paths: list[Point] = get_valid_points(point)
-    for r, c in paths:
-        counter = 0
-        if (r, c) in seen:
+def traverse(start_point: Point):
+    points = get_points(start_point)
+    for point in points:
+        if point in seen:
             continue
-        seen.add((r, c))
-        partial_seen = {point, (r, c)}
-        while True:
-            counter += 1
-            num_dirs = get_num_dirs((r, c))
-            valid_points = get_valid_points((r, c), partial_seen)
-            if num_dirs > 2 or (r, c) == (re, ce):
-                nodes.add((r, c))
-                if (r, c) not in edges:
-                    edges[(r, c)] = []
-                if point not in edges:
-                    edges[point] = []
-                edges[(r, c)].append((point, counter))
-                edges[point].append(((r, c), counter))
-                nodes.add((r, c))
-                if len(valid_points) > 0:
-                    traverse((r, c))
-                break
+        seen.add(point)
+        traverse_path(start_point, point)
 
-            assert len(valid_points) > 0
 
-            for nr, nc in valid_points:
-                seen.add((nr, nc))
-                partial_seen.add((nr, nc))
-                r, c = nr, nc
+def traverse_path(start_point: Point, point: Point):
+    prev_point = start_point
+    current_point = point
+    dist = 0
+    while True:
+        dist += 1
+        points = [p for p in get_points(current_point) if p != prev_point]
+        if len(points) != 1:
+            edges[current_point].append((start_point, dist))
+            edges[start_point].append((current_point, dist))
+            if current_point not in seen:
+                seen.add(current_point)
+                if len(points) > 0:
+                    traverse(current_point)
+            return
+        seen.add(current_point)
+        prev_point = current_point
+        current_point = points[0]
 
 
 traverse((rs, cs))
@@ -144,21 +120,59 @@ def longest():
     return max_dist
 
 
-def longest_recur(point: Point) -> int:
-    # 26s run time
+def longest_recur(point: Point, dist: int) -> int:
+    # 12s run time
     if point == (re, ce):
-        return 0
-    max_dist = -1000000000
+        return dist
+    max_dist = 0
     seen.add(point)
     for next_point, next_dist in edges[point]:
         if next_point in seen:
             continue
-        l = longest_recur(next_point)
-        total_dist = l + next_dist
-        max_dist = max(total_dist, max_dist)
+        l = longest_recur(next_point, dist + next_dist)
+        max_dist = max(l, max_dist)
     seen.remove(point)
     return max_dist
 
 
-print(longest())
-# print(longest_recur((rs, cs)))
+edges_arr: list[list[tuple[int, int]]] = []
+edge_to_arr: dict[Point, int] = {}
+
+
+def ensure_default_edge(p: Point):
+    if not p in edge_to_arr:
+        edge_to_arr[p] = len(edges_arr)
+        edges_arr.append([])
+
+
+for k, v in edges.items():
+    ensure_default_edge(k)
+    edge_idx = edge_to_arr[k]
+    for point, dist in v:
+        ensure_default_edge(point)
+        point_idx = edge_to_arr[point]
+        edges_arr[edge_idx].append((point_idx, dist))
+
+start_idx = edge_to_arr[(rs, cs)]
+end_idx = edge_to_arr[(re, ce)]
+seen_idx: set[int] = set()
+
+
+def longest_arr_recur(point: int, dist: int) -> int:
+    # 9.8s run time, slightly faster to use idx's over dict but not that much
+    if point == end_idx:
+        return dist
+    max_dist = 0
+    seen_idx.add(point)
+    for next_point, next_dist in edges_arr[point]:
+        if next_point in seen_idx:
+            continue
+        l = longest_arr_recur(next_point, dist + next_dist)
+        max_dist = max(l, max_dist)
+    seen_idx.remove(point)
+    return max_dist
+
+
+# print(longest())
+# print(longest_recur((rs, cs), 0))
+print(longest_arr_recur(start_idx, 0))
