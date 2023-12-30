@@ -13,7 +13,16 @@ mypy = "^1.7.0"
 numpy = "^1.26.2"
 sympy = "^1.12"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+
+# Magic three lines for local project venv
+# https://github.com/microsoft/pyright/issues/30#issuecomment-1247153633
+exclude = [ ".venv" ]
+venvPath = "."
+venv = ".venv"
