@@ -3,7 +3,7 @@ from utils.file import read_file
 
 
 contents = read_file(__file__, "input")
-lines = contents.strip().split("\n")
+lines = contents.strip().splitlines()
 all = [(int(x) for x in re.split(r' +', line)) for line in lines]
 left, right = [list(x) for x in zip(*all)]
 left.sort()
