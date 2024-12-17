@@ -12,6 +12,8 @@ Also running rust cause I think I can write the same python code in rust.
 
 ### Getting started python
 
+Make sure to run `setup-pythonpath` to symlink the current directory to python path for absolute imports
+
 This should setup everything.
 
 ```sh
