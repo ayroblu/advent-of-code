@@ -1,8 +1,8 @@
 import os
 
 
-def read_input(current_file_path: str) -> str:
-    return read_file(current_file_path, "input")
+def read_input(current_file_path: str, name: str = "input") -> str:
+    return read_file(current_file_path, name).strip()
 
 
 def read_file(current_file_path: str, relative_file_name: str) -> str:
