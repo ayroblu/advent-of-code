@@ -14,10 +14,14 @@ Also running rust cause I think I can write the same python code in rust.
 
 Make sure to run `setup-pythonpath` to symlink the current directory to python path for absolute imports
 
-This should setup everything.
+```
+setup-pythonpath
+```
+
+This should setup all the packages
 
 ```sh
-poetry install
+uv sync
 ```
 
 Typechecking should be automatically handled by pyright when using it as an LSP such as for vim.
@@ -25,11 +29,7 @@ Typechecking should be automatically handled by pyright when using it as an LSP 
 There are two options for running some python file.
 
 ```sh
-poetry shell
-python "<path-here>"
-# OR
-# Note this has a 280ms setup time
-poetry run python "<path-here>"
+uvp "p1.py"
 ```
 
 ### Getting started rust
