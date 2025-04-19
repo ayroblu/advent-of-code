@@ -38,3 +38,7 @@ func MustReadFile(path string) string {
 	}
 	return string(content)
 }
+
+func MustReadFileInput() string {
+	return MustReadFile("input")
+}

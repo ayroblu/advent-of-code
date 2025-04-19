@@ -1,0 +1,2 @@
+# Ignore due to html containing per user secrets
+*.html

@@ -3,6 +3,8 @@ package utils
 import (
 	"slices"
 	"strconv"
+
+	"github.com/samber/lo"
 )
 
 func MustAtoi(text string) int {
@@ -26,4 +28,8 @@ func Delete[S ~[]E, E any](origArr S, i int) S {
 	copy(arr, origArr)
 	arr = slices.Delete(arr, i, i+1)
 	return arr
+}
+
+func MustAtoiSlice(slice []string) []int {
+	return lo.Map(slice, func(value string, _ int) int { return MustAtoi(value) })
 }
